@@ -1,0 +1,68 @@
+﻿spring:
+  application:
+    name: tablet-backend
+
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:tablet_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    pool:
+      initial-size: 5
+      max-size: 20
+      max-idle-time: 30m
+      validation-query: SELECT 1
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    root: INFO
+    com.tablet.backend: DEBUG
+    org.springframework.r2dbc: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/tablet_db
+    username: postgres
+    password: postgres
+
+logging:
+  level:
+    com.tablet.backend: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    pool:
+      initial-size: 10
+      max-size: 50
+
+logging:
+  level:
+    root: WARN
+    com.tablet.backend: INFO
