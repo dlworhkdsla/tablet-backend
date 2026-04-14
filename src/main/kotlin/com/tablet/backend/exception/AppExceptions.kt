@@ -25,3 +25,13 @@ class UnauthorizedException(
 class ForbiddenException(
     message: String = "접근 권한이 없습니다.",
 ) : AppException(message)
+
+class AzureServiceException(
+    message: String,
+    cause: Throwable? = null,
+) : AppException(message, cause)
+
+class DocumentAnalysisException(
+    message: String,
+    cause: Throwable? = null,
+) : AppException(message, cause)

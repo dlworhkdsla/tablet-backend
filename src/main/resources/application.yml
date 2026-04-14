@@ -2,6 +2,16 @@
   application:
     name: tablet-backend
 
+  config:
+    import: "optional:file:.env[.properties]"
+
+  codec:
+    max-in-memory-size: 20MB
+
+  webflux:
+    multipart:
+      max-in-memory-size: 20MB
+
   r2dbc:
     url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:tablet_db}
     username: ${DB_USERNAME:postgres}
@@ -23,6 +33,22 @@
     deserialization:
       fail-on-unknown-properties: false
     default-property-inclusion: non_null
+
+azure:
+  document-intelligence:
+    endpoint: ${AZURE_DI_ENDPOINT}
+    key: ${AZURE_DI_KEY}
+    model-id: ${AZURE_DI_MODEL_ID:prebuilt-read}
+    api-version: ${AZURE_DI_API_VERSION:2024-11-30}
+    max-poll-attempts: ${AZURE_DI_MAX_POLL_ATTEMPTS:30}
+    poll-interval-ms: ${AZURE_DI_POLL_INTERVAL_MS:2000}
+  openai:
+    endpoint: ${AZURE_OPENAI_ENDPOINT}
+    key: ${AZURE_OPENAI_KEY}
+    deployment-name: ${AZURE_OPENAI_DEPLOYMENT_NAME:gpt-4o}
+    api-version: ${AZURE_OPENAI_API_VERSION:2024-10-21}
+    max-tokens: ${AZURE_OPENAI_MAX_TOKENS:4096}
+    temperature: ${AZURE_OPENAI_TEMPERATURE:0.3}
 
 server:
   port: ${SERVER_PORT:8080}

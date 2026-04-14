@@ -39,6 +39,14 @@ class GlobalExceptionHandler(
             is InvalidRequestException -> HttpStatus.BAD_REQUEST to ex.message
             is UnauthorizedException -> HttpStatus.UNAUTHORIZED to ex.message
             is ForbiddenException -> HttpStatus.FORBIDDEN to ex.message
+            is AzureServiceException -> {
+                log.error("[GlobalExceptionHandler] Azure 서비스 오류: path=$path, message=${ex.message}", ex)
+                HttpStatus.BAD_GATEWAY to "Azure 서비스 오류: ${ex.message}"
+            }
+            is DocumentAnalysisException -> {
+                log.error("[GlobalExceptionHandler] 문서 분석 오류: path=$path, message=${ex.message}", ex)
+                HttpStatus.UNPROCESSABLE_ENTITY to ex.message
+            }
             else -> {
                 log.error("[GlobalExceptionHandler] 처리되지 않은 예외 발생: path=$path", ex)
                 HttpStatus.INTERNAL_SERVER_ERROR to "서버 내부 오류가 발생했습니다."
