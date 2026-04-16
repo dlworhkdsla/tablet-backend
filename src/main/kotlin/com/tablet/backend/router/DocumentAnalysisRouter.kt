@@ -13,7 +13,7 @@ class DocumentAnalysisRouter(
     @Bean
     fun documentAnalysisRoutes() = coRouter {
         "/api/v1/documents".nest {
-            accept(MediaType.MULTIPART_FORM_DATA).nest {
+            contentType(MediaType.MULTIPART_FORM_DATA).nest {
                 POST("/analyze", documentAnalysisHandler::analyzeDocument)
             }
         }
