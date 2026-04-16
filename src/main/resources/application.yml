@@ -36,15 +36,15 @@
 
 azure:
   document-intelligence:
-    endpoint: ${AZURE_DI_ENDPOINT}
-    key: ${AZURE_DI_KEY}
+    endpoint: ${AZURE_DI_ENDPOINT:https://nutr-ocr-di.cognitiveservices.azure.com/}
+    key: ${AZURE_DI_KEY:REMOVED_DI_KEY}
     model-id: ${AZURE_DI_MODEL_ID:prebuilt-layout}
     api-version: ${AZURE_DI_API_VERSION:2024-11-30}
     max-poll-attempts: ${AZURE_DI_MAX_POLL_ATTEMPTS:30}
     poll-interval-ms: ${AZURE_DI_POLL_INTERVAL_MS:2000}
   openai:
-    endpoint: ${AZURE_OPENAI_ENDPOINT}
-    key: ${AZURE_OPENAI_KEY}
+    endpoint: ${AZURE_OPENAI_ENDPOINT:https://mes-ocr.openai.azure.com/}
+    key: ${AZURE_OPENAI_KEY:REMOVED_OPENAI_KEY}
     deployment-name: ${AZURE_OPENAI_DEPLOYMENT_NAME:gpt-4o-mini}
     api-version: ${AZURE_OPENAI_API_VERSION:2024-10-21}
     max-tokens: ${AZURE_OPENAI_MAX_TOKENS:4096}
