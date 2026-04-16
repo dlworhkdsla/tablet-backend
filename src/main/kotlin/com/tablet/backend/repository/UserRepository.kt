@@ -2,10 +2,12 @@
 
 import com.tablet.backend.domain.user.User
 import kotlinx.coroutines.flow.Flow
+import org.springframework.context.annotation.Profile
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
+@Profile("db")
 interface UserRepository : CoroutineCrudRepository<User, Long> {
 
     suspend fun findByEmail(email: String): User?

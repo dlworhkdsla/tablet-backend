@@ -9,10 +9,12 @@ import com.tablet.backend.exception.ResourceNotFoundException
 import com.tablet.backend.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Profile("db")
 class UserService(
     private val userRepository: UserRepository,
 ) {
