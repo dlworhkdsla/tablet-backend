@@ -2,6 +2,14 @@
   application:
     name: tablet-backend
 
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration
+
   config:
     import: "optional:file:.env[.properties]"
 
@@ -22,10 +30,11 @@
       max-idle-time: 30m
       validation-query: SELECT 1
 
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:schema.sql
+# DB 미연동 시 비활성화
+#  sql:
+#    init:
+#      mode: always
+#      schema-locations: classpath:schema.sql
 
   jackson:
     serialization:
