@@ -4,12 +4,10 @@ import com.tablet.backend.dto.user.CreateUserRequest
 import com.tablet.backend.dto.user.UpdateUserRequest
 import com.tablet.backend.service.UserService
 import kotlinx.coroutines.flow.Flow
-import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.*
 
 @Component
-@Profile("db")
 class UserHandler(
     private val userService: UserService,
 ) {
