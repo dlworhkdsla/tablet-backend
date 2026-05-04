@@ -33,7 +33,7 @@ class DocumentAnalysisService(
         }
 
         // 2단계: Azure OpenAI 분석 (content만 전달)
-        val (aiAnalysis, tokenUsage) = azureOpenAIService.analyze(diResult.content) 
+        val (nutritionInfo, tokenUsage) = azureOpenAIService.analyze(diResult.content)
 
         val processingTimeMs = System.currentTimeMillis() - startTime
         log.info("문서 분석 완료 - 소요 시간: ${processingTimeMs}ms")
@@ -41,7 +41,7 @@ class DocumentAnalysisService(
         return DocumentAnalysisResponse(
             extractedText = diResult.content,
             aiAnalysis = AiAnalysisResult(
-                analysis = aiAnalysis,
+                nutrition = nutritionInfo,
                 model = azureProperties.openai.deploymentName,
                 tokenUsage = tokenUsage?.let {
                     TokenUsage(

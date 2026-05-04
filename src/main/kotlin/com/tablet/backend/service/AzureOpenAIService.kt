@@ -1,6 +1,9 @@
 package com.tablet.backend.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.tablet.backend.config.AzureProperties
+import com.tablet.backend.dto.document.NutritionInfo
 import com.tablet.backend.dto.document.OpenAIChatRequest
 import com.tablet.backend.dto.document.OpenAIChatResponse
 import com.tablet.backend.dto.document.OpenAIMessage
@@ -17,20 +20,35 @@ import org.springframework.web.reactive.function.client.awaitBody
 class AzureOpenAIService(
     private val webClient: WebClient,
     private val azureProperties: AzureProperties,
+    private val objectMapper: ObjectMapper,
 ) {
     private val log = LoggerFactory.getLogger(AzureOpenAIService::class.java)
 
     companion object {
-        private const val SYSTEM_PROMPT = "당신은 문서 분석 전문가입니다. " +
-            "제공된 문서에서 추출된 텍스트를 분석하여 다음을 포함한 구조화된 분석 결과를 한국어로 제공해주세요:\n" +
-            "1. 문서 요약 (핵심 내용 3~5줄)\n" +
-            "2. 주요 키워드 및 개념\n" +
-            "3. 문서 유형 분류 (청구서, 계약서, 보고서, 양식 등)\n" +
-            "4. 중요 수치/날짜/이름 등 핵심 정보 추출\n" +
-            "5. 특이사항 또는 주의가 필요한 내용"
+        private const val SYSTEM_PROMPT = """당신은 식품 영양성분 추출 전문가입니다.
+제공된 문서에서 영양성분 정보만 추출하여 반드시 아래 JSON 형식으로만 응답하세요.
+다른 설명, 마크다운 코드블록, 추가 텍스트 없이 순수 JSON만 출력하세요.
+
+{
+  "productName": "제품명 (없으면 null)",
+  "servingUnit": "기준단위 (예: 100g, 1회제공량 등)",
+  "nutrients": [
+    {"name": "열량", "value": 143.61, "unit": "kcal"},
+    {"name": "나트륨", "value": 176.25, "unit": "mg"},
+    {"name": "탄수화물", "value": 19.31, "unit": "g"},
+    {"name": "당류", "value": 1.81, "unit": "g"},
+    {"name": "지방", "value": 3.97, "unit": "g"},
+    {"name": "트랜스지방", "value": 0.00, "unit": "g"},
+    {"name": "포화지방", "value": 1.43, "unit": "g"},
+    {"name": "콜레스테롤", "value": 6.93, "unit": "mg"},
+    {"name": "단백질", "value": 7.66, "unit": "g"}
+  ]
+}
+
+영양성분 정보가 없으면 nutrients를 빈 배열로 반환하세요."""
     }
 
-    suspend fun analyze(extractedText: String): Pair<String, OpenAIUsage?> {
+    suspend fun analyze(extractedText: String): Pair<NutritionInfo?, OpenAIUsage?> {
         val openAIProps = azureProperties.openai
         val completionUrl = buildCompletionUrl(openAIProps)
 
@@ -57,7 +75,7 @@ class AzureOpenAIService(
                 .retrieve()
                 .awaitBody<OpenAIChatResponse>()
 
-            val analysisContent = response.choices.firstOrNull()?.message?.content
+            val rawContent = response.choices.firstOrNull()?.message?.content
                 ?: throw AzureServiceException("Azure OpenAI 응답에 콘텐츠가 없습니다.")
 
             log.info(
@@ -65,7 +83,14 @@ class AzureOpenAIService(
                     "토큰 사용량: ${response.usage?.totalTokens}",
             )
 
-            return Pair(analysisContent, response.usage)
+            val nutritionInfo = try {
+                objectMapper.readValue<NutritionInfo>(rawContent)
+            } catch (e: Exception) {
+                log.warn("영양성분 JSON 파싱 실패, raw: $rawContent", e)
+                null
+            }
+
+            return Pair(nutritionInfo, response.usage)
         } catch (e: AzureServiceException) {
             throw e
         } catch (e: WebClientResponseException) {

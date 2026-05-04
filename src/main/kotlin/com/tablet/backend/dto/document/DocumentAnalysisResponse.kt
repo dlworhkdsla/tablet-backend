@@ -11,9 +11,21 @@ data class DocumentAnalysisResponse(
 )
 
 data class AiAnalysisResult(
-    val analysis: String,
+    val nutrition: NutritionInfo?,
     val model: String,
     val tokenUsage: TokenUsage? = null,
+)
+
+data class NutritionInfo(
+    val productName: String?,
+    val servingUnit: String = "100g",
+    val nutrients: List<NutrientItem> = emptyList(),
+)
+
+data class NutrientItem(
+    val name: String,
+    val value: Double?,
+    val unit: String,
 )
 
 data class TokenUsage(
