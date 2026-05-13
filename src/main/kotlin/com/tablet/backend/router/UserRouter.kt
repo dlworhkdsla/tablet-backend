@@ -1,12 +1,14 @@
-﻿package com.tablet.backend.router
+package com.tablet.backend.router
 
 import com.tablet.backend.handler.UserHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.coRouter
 
 @Configuration
+@Profile("local")
 class UserRouter(
     private val userHandler: UserHandler,
 ) {

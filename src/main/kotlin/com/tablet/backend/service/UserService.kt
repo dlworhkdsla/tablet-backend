@@ -1,4 +1,4 @@
-﻿package com.tablet.backend.service
+package com.tablet.backend.service
 
 import com.tablet.backend.domain.user.User
 import com.tablet.backend.dto.user.CreateUserRequest
@@ -9,10 +9,12 @@ import com.tablet.backend.exception.ResourceNotFoundException
 import com.tablet.backend.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Profile("local")
 class UserService(
     private val userRepository: UserRepository,
 ) {

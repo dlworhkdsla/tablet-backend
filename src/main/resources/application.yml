@@ -24,8 +24,7 @@
 
   sql:
     init:
-      mode: always
-      schema-locations: classpath:schema.sql
+      mode: never
 
   jackson:
     serialization:
@@ -69,6 +68,11 @@ spring:
     url: r2dbc:postgresql://localhost:5432/postgres
     username: postgres
     password: postgre
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
 
 logging:
   level:
