@@ -51,7 +51,7 @@ azure:
     temperature: ${AZURE_OPENAI_TEMPERATURE:0.3}
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:${SERVER_PORT:8080}}
 
 logging:
   level:
