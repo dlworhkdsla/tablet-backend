@@ -9,7 +9,7 @@ COPY settings.gradle.kts .
 COPY src src
 
 RUN chmod +x ./gradlew
-RUN ./gradlew bootJar --no-daemon -x test
+RUN GRADLE_OPTS="-Xmx512m -Xms256m" ./gradlew bootJar --no-daemon -x test
 
 # 실행 스테이지
 FROM eclipse-temurin:17-jre-alpine
