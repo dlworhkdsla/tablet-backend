@@ -6,6 +6,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.resource.NoResourceFoundException
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -39,6 +40,11 @@ class GlobalExceptionHandler(
         }
 
         val (httpStatus, message) = when (ex) {
+            is NoResourceFoundException -> {
+                // 존재하지 않는 경로 접근은 DEBUG 레벨로만 기록 (헬스체크 노이즈 방지)
+                log.debug("[GlobalExceptionHandler] 리소스 없음: path=$path")
+                HttpStatus.NOT_FOUND to "요청한 경로를 찾을 수 없습니다: $path"
+            }
             is ResourceNotFoundException -> HttpStatus.NOT_FOUND to ex.message
             is DuplicateResourceException -> HttpStatus.CONFLICT to ex.message
             is InvalidRequestException -> HttpStatus.BAD_REQUEST to ex.message
