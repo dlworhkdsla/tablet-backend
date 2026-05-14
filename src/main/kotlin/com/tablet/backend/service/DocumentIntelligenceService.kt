@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
+import java.net.URI
 import java.util.Base64
 
 @Service
@@ -52,7 +53,8 @@ class DocumentIntelligenceService(
         log.debug("Azure DI 문서 제출 - URL: $analyzeUrl")
         try {
             val response = webClient.post()
-                .uri(analyzeUrl)
+                // URI.create()를 사용하여 Spring URI 템플릿 파싱 우회
+                .uri(URI.create(analyzeUrl))
                 .header("Ocp-Apim-Subscription-Key", apiKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(mapOf("base64Source" to base64Image))
@@ -77,7 +79,8 @@ class DocumentIntelligenceService(
 
             try {
                 val result = webClient.get()
-                    .uri(operationLocation)
+                    // URI.create()를 사용하여 Spring URI 템플릿 파싱 우회
+                    .uri(URI.create(operationLocation))
                     .header("Ocp-Apim-Subscription-Key", diProps.key)
                     .retrieve()
                     .awaitBody<DiOperationResult>()
