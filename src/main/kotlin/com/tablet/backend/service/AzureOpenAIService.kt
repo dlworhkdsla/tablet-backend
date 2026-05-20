@@ -26,28 +26,28 @@ class AzureOpenAIService(
 
     companion object {
         private const val SYSTEM_PROMPT = """당신은 식품 영양성분 추출 전문가입니다.
-제공된 문서에서 영양성분 정보만 추출하여 반드시 아래 JSON 형식으로만 응답하세요.
-다른 설명, 마크다운 코드블록, 추가 텍스트 없이 순수 JSON만 출력하세요.
+            제공된 문서에서 영양성분 정보만 추출하여 반드시 아래 JSON 형식으로만 응답하세요.
+            다른 설명, 마크다운 코드블록, 추가 텍스트 없이 순수 JSON만 출력하세요.
 
-{
-  "productName": "제품명 (없으면 null)",
-  "analysisAgent": "분석기관 (없으면 null)",
-  "analysisDate": "분석일자 (없으면 null)",
-  "servingUnit": "기준단위 (예: 100g, 1회제공량 등)",
-  "nutrients": [
-    {"name": "열량", "value": 143.61, "unit": "kcal"},
-    {"name": "나트륨", "value": 176.25, "unit": "mg"},
-    {"name": "탄수화물", "value": 19.31, "unit": "g"},
-    {"name": "당류", "value": 1.81, "unit": "g"},
-    {"name": "지방", "value": 3.97, "unit": "g"},
-    {"name": "트랜스지방", "value": 0.00, "unit": "g"},
-    {"name": "포화지방", "value": 1.43, "unit": "g"},
-    {"name": "콜레스테롤", "value": 6.93, "unit": "mg"},
-    {"name": "단백질", "value": 7.66, "unit": "g"}
-  ]
-}
+            {
+                "productName": "제품명 (없으면 null)",
+                "analysisAgent": "분석기관 (없으면 null)",
+                "analysisDate": "분석일자 (없으면 null)",
+                "servingUnit": "기준단위 (예: 100g, 1회제공량 등)",
+                "nutrients": [
+                    {"name": "열량", "value": 143.61, "unit": "kcal"},
+                    {"name": "나트륨", "value": 176.25, "unit": "mg"},
+                    {"name": "탄수화물", "value": 19.31, "unit": "g"},
+                    {"name": "당류", "value": 1.81, "unit": "g"},
+                    {"name": "지방", "value": 3.97, "unit": "g"},
+                    {"name": "트랜스지방", "value": 0.00, "unit": "g"},
+                    {"name": "포화지방", "value": 1.43, "unit": "g"},
+                    {"name": "콜레스테롤", "value": 6.93, "unit": "mg"},
+                    {"name": "단백질", "value": 7.66, "unit": "g"}
+                ]
+            }
 
-영양성분 정보가 없으면 nutrients를 빈 배열로 반환하세요."""
+            영양성분 정보가 없으면 nutrients를 빈 배열로 반환하세요."""
     }
 
     suspend fun analyze(extractedText: String): Pair<NutritionInfo?, OpenAIUsage?> {
