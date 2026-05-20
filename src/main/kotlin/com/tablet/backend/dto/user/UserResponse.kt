@@ -1,27 +1,25 @@
 ﻿package com.tablet.backend.dto.user
 
 import com.tablet.backend.domain.user.User
-import com.tablet.backend.domain.user.UserRole
-import java.time.LocalDateTime
 
 data class UserResponse(
-    val id: Long,
-    val username: String,
-    val email: String,
-    val role: UserRole,
-    val isActive: Boolean,
-    val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?,
+    val userId: String,
+    val passExpireDate: String,
+    val deleteFlag: String,
+    val creatorId: String,
+    val createDttm: String,
+    val modifierId: String?,
+    val modifyDttm: String?,
 ) {
     companion object {
         fun from(user: User): UserResponse = UserResponse(
-            id = user.id!!,
-            username = user.username,
-            email = user.email,
-            role = user.role,
-            isActive = user.isActive,
-            createdAt = user.createdAt,
-            updatedAt = user.updatedAt,
+            userId = user.userId,
+            passExpireDate = user.passExpireDate,
+            deleteFlag = user.deleteFlag,
+            creatorId = user.creatorId,
+            createDttm = user.createDttm,
+            modifierId = user.modifierId,
+            modifyDttm = user.modifyDttm,
         )
     }
 }

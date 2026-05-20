@@ -1,11 +1,14 @@
 CREATE TABLE IF NOT EXISTS users
 (
-    id         BIGSERIAL PRIMARY KEY,
-    username   VARCHAR(50)  NOT NULL UNIQUE,
-    email      VARCHAR(100) NOT NULL UNIQUE,
-    password   VARCHAR(255) NOT NULL,
-    role       VARCHAR(20)  NOT NULL DEFAULT 'USER',
-    is_active  BOOLEAN      NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    user_id          VARCHAR(50)  NOT NULL,
+    password         VARCHAR(255) NOT NULL,
+    pass_expire_date CHAR(8)      NOT NULL,
+    delete_flag      CHAR(1)      NOT NULL DEFAULT 'N',
+    creator_id       VARCHAR(50)  NOT NULL,
+    create_dttm      CHAR(14)     NOT NULL,
+    modifier_id      VARCHAR(50),
+    modify_dttm      CHAR(14),
+
+    CONSTRAINT pk_users PRIMARY KEY (user_id),
+    CONSTRAINT chk_delete_flag CHECK (delete_flag IN ('Y', 'N'))
 );

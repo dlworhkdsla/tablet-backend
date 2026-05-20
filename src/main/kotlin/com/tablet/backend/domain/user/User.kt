@@ -1,41 +1,33 @@
 package com.tablet.backend.domain.user
 
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
-import java.time.LocalDateTime
 
 @Table("users")
 data class User(
     @Id
-    val id: Long? = null,
-
-    @Column("username")
-    val username: String,
-
-    @Column("email")
-    val email: String,
+    @Column("user_id")
+    val userId: String,
 
     @Column("password")
     val password: String,
 
-    @Column("role")
-    val role: UserRole = UserRole.USER,
+    @Column("pass_expire_date")
+    val passExpireDate: String,
 
-    @Column("is_active")
-    val isActive: Boolean = true,
+    @Column("delete_flag")
+    val deleteFlag: String = "N",
 
-    @CreatedDate
-    @Column("created_at")
-    val createdAt: LocalDateTime? = null,
+    @Column("creator_id")
+    val creatorId: String,
 
-    @LastModifiedDate
-    @Column("updated_at")
-    val updatedAt: LocalDateTime? = null,
+    @Column("create_dttm")
+    val createDttm: String,
+
+    @Column("modifier_id")
+    val modifierId: String? = null,
+
+    @Column("modify_dttm")
+    val modifyDttm: String? = null,
 )
-
-enum class UserRole {
-    ADMIN, USER
-}

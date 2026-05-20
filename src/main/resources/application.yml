@@ -13,7 +13,7 @@
       max-in-memory-size: 20MB
 
   r2dbc:
-    url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:tablet_db}
+    url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:postgres}?sslMode=require
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     pool:
@@ -48,6 +48,10 @@ azure:
     api-version: ${AZURE_OPENAI_API_VERSION:2024-10-21}
     max-tokens: ${AZURE_OPENAI_MAX_TOKENS:4096}
     temperature: ${AZURE_OPENAI_TEMPERATURE:0.3}
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  access-token-expire-minutes: ${JWT_ACCESS_EXPIRE_MINUTES:30}
 
 server:
   port: ${PORT:${SERVER_PORT:8080}}

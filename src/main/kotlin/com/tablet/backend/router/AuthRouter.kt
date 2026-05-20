@@ -1,22 +1,21 @@
 package com.tablet.backend.router
 
-import com.tablet.backend.handler.UserHandler
+import com.tablet.backend.handler.AuthHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.server.coRouter
 
 @Configuration
-@Profile("local")
-class UserRouter(
-    private val userHandler: UserHandler,
+class AuthRouter(
+    private val authHandler: AuthHandler,
 ) {
     @Bean
-    fun userRoutes() = coRouter {
-        "/api/v1/users".nest {
+    fun authRoutes() = coRouter {
+        "/api/v1/auth".nest {
             accept(MediaType.APPLICATION_JSON).nest {
-                GET("/{userId}", userHandler::getUserById)
+                POST("/register", authHandler::register)
+                POST("/login", authHandler::login)
             }
         }
     }
