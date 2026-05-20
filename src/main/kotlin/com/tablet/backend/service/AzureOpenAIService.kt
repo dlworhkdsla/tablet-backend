@@ -31,6 +31,8 @@ class AzureOpenAIService(
 
 {
   "productName": "제품명 (없으면 null)",
+  "analysisAgent": "분석기관 (없으면 null)",
+  "analysisDate": "분석일자 (없으면 null)",
   "servingUnit": "기준단위 (예: 100g, 1회제공량 등)",
   "nutrients": [
     {"name": "열량", "value": 143.61, "unit": "kcal"},
