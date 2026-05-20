@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tablet Backend API 명세서</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 13px;
+      color: #1a1a2e;
+      background: #fff;
+      line-height: 1.6;
+    }
+
+    /* ── 인쇄/PDF 설정 ── */
+    @media print {
+      .no-print { display: none !important; }
+      body { font-size: 11px; }
+      .page-break { page-break-before: always; }
+      .card { break-inside: avoid; }
+      .cover { page-break-after: always; }
+    }
+
+    /* ── 표지 ── */
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 80px;
+      background: linear-gradient(135deg, #0f3460 0%, #16213e 60%, #1a1a2e 100%);
+      color: #fff;
+    }
+    .cover .badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+    .cover h1 { font-size: 42px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; }
+    .cover h1 span { color: #e94560; }
+    .cover .subtitle { font-size: 16px; font-weight: 300; opacity: 0.75; margin-bottom: 60px; }
+    .cover .meta-table { border-top: 1px solid rgba(255,255,255,0.2); padding-top: 32px; display: grid; grid-template-columns: 120px 1fr; gap: 10px 20px; }
+    .cover .meta-table .label { opacity: 0.55; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+    .cover .meta-table .value { font-weight: 500; }
+
+    /* ── 본문 레이아웃 ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 60px 48px; }
+
+    /* ── 목차 ── */
+    .toc { background: #f8f9fc; border-left: 4px solid #0f3460; border-radius: 0 8px 8px 0; padding: 28px 32px; margin-bottom: 56px; }
+    .toc h2 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #0f3460; margin-bottom: 16px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { padding: 4px 0; color: #444; }
+    .toc a { color: #0f3460; text-decoration: none; font-weight: 500; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ── 섹션 헤더 ── */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f3460;
+      margin: 52px 0 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e8ecf4;
+    }
+    .section-title .num {
+      background: #0f3460;
+      color: #fff;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+
+    /* ── API 카드 ── */
+    .card {
+      border: 1px solid #e4e9f2;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 22px;
+      background: #f8f9fc;
+      border-bottom: 1px solid #e4e9f2;
+    }
+    .method {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 5px;
+      min-width: 58px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    .method.get    { background: #d1fae5; color: #065f46; }
+    .method.post   { background: #dbeafe; color: #1e40af; }
+    .method.put    { background: #fef3c7; color: #92400e; }
+    .method.delete { background: #fee2e2; color: #991b1b; }
+    .method.head   { background: #f3f4f6; color: #374151; }
+    .endpoint {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a2e;
+    }
+    .card-desc { padding: 14px 22px 0; color: #555; font-size: 13px; }
+    .card-body { padding: 14px 22px 20px; }
+
+    /* ── 레이블 ── */
+    .label-row { display: flex; align-items: center; gap: 10px; margin: 16px 0 8px; }
+    .label-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #6b7280;
+    }
+    .divider { flex: 1; height: 1px; background: #e9ecf3; }
+
+    /* ── 인증 배지 ── */
+    .auth-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    .auth-required { background: #fef3c7; color: #b45309; }
+    .auth-none     { background: #f0fdf4; color: #166534; }
+
+    /* ── 코드 블록 ── */
+    pre {
+      background: #1e2235;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      padding: 18px 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .key   { color: #93c5fd; }
+    .str   { color: #86efac; }
+    .num   { color: #fcd34d; }
+    .comment { color: #6b7280; }
+    .type  { color: #f9a8d4; }
+
+    /* ── 테이블 ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    thead tr { background: #f1f4fb; }
+    th {
+      padding: 9px 14px;
+      text-align: left;
+      font-weight: 700;
+      color: #374151;
+      border-bottom: 2px solid #dde3f0;
+      white-space: nowrap;
+    }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #eef0f6;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    td:first-child, th:first-child { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .required { color: #e94560; font-size: 10px; font-weight: 700; margin-left: 4px; }
+    .optional { color: #9ca3af; font-size: 10px; margin-left: 4px; }
+
+    /* ── HTTP 상태코드 뱃지 ── */
+    .status {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+    .s2xx { background: #d1fae5; color: #065f46; }
+    .s4xx { background: #fee2e2; color: #991b1b; }
+    .s5xx { background: #fce7f3; color: #9d174d; }
+
+    /* ── 에러 코드 섹션 ── */
+    .error-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .error-item {
+      background: #fafafa;
+      border: 1px solid #e9ecf3;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .error-item .code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #e94560;
+      margin-bottom: 4px;
+    }
+    .error-item .desc { color: #555; font-size: 12px; }
+
+    /* ── 인쇄 버튼 ── */
+    .print-btn {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: #0f3460;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(15,52,96,0.35);
+      z-index: 999;
+    }
+    .print-btn:hover { background: #16213e; }
+
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 12.5px;
+      color: #1e40af;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 인쇄 버튼 -->
+<button class="print-btn no-print" onclick="window.print()">📄 PDF 저장</button>
+
+<!-- ════════════════════════════ 표지 ════════════════════════════ -->
+<div class="cover">
+  <div class="badge">API Documentation</div>
+  <h1>Tablet Backend<br/><span>API 명세서</span></h1>
+  <p class="subtitle">tablet-backend · Spring Boot 3 / WebFlux · R2DBC</p>
+  <div class="meta-table">
+    <span class="label">Version</span>   <span class="value">0.0.1-SNAPSHOT</span>
+    <span class="label">Base URL</span>  <span class="value">http://&lt;host&gt;:8080</span>
+    <span class="label">Protocol</span>  <span class="value">HTTPS (Supabase PostgreSQL)</span>
+    <span class="label">작성일</span>    <span class="value">2026-05-20</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════ 본문 ════════════════════════════ -->
+<div class="container">
+
+  <!-- 목차 -->
+  <div class="toc">
+    <h2>목차</h2>
+    <ol>
+      <li><a href="#sec-overview">개요</a></li>
+      <li><a href="#sec-health">헬스체크 API</a></li>
+      <li><a href="#sec-auth">인증 API</a>
+        <ol style="margin-top:4px">
+          <li><a href="#api-register">회원가입</a></li>
+          <li><a href="#api-login">로그인</a></li>
+        </ol>
+      </li>
+      <li><a href="#sec-document">문서 분석 API</a></li>
+      <li><a href="#sec-error">에러 응답 형식</a></li>
+    </ol>
+  </div>
+
+  <!-- ── 1. 개요 ── -->
+  <div id="sec-overview">
+    <div class="section-title"><span class="num">1</span> 개요</div>
+
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>Base URL</td><td><code>http://&lt;host&gt;:8080</code></td></tr>
+        <tr><td>Content-Type</td><td><code>application/json</code> (파일 업로드 제외)</td></tr>
+        <tr><td>인증 방식</td><td>Bearer Token (JWT) — Authorization 헤더 사용</td></tr>
+        <tr><td>문자 인코딩</td><td>UTF-8</td></tr>
+        <tr><td>날짜 형식</td><td>YYYYMMDD (날짜), YYYYMMDDHH24MISS (일시)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="label-row" style="margin-top:24px;"><span class="label-tag">인증 헤더 형식</span><div class="divider"></div></div>
+    <pre><span class="comment">// 로그인 후 발급된 accessToken을 헤더에 포함</span>
+Authorization: Bearer <span class="str">eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJFTVAwMDEi...</span></pre>
+  </div>
+
+  <!-- ── 2. 헬스체크 ── -->
+  <div id="sec-health" class="page-break">
+    <div class="section-title"><span class="num">2</span> 헬스체크 API</div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="method get">GET</span>
+        <span class="endpoint">/health</span>
+        <span class="auth-badge auth-none">인증 불필요</span>
+      </div>
+      <p class="card-desc">서버 상태를 확인합니다. 로드밸런서 및 Render 헬스체크용으로 사용합니다.</p>
+      <div class="card-body">
+        <div class="label-row"><span class="label-tag">Response</span><div class="divider"></div><span class="status s2xx">200</span></div>
+        <pre>{
+  <span class="key">"status"</span>: <span class="str">"ok"</span>
+}</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="method get">GET</span>
+        <span class="endpoint">/</span>
+        <span class="auth-badge auth-none">인증 불필요</span>
+      </div>
+      <p class="card-desc">루트 경로 헬스체크. <code>/health</code>와 동일한 응답을 반환합니다.</p>
+      <div class="card-body">
+        <div class="label-row"><span class="label-tag">Response</span><div class="divider"></div><span class="status s2xx">200</span></div>
+        <pre>{
+  <span class="key">"status"</span>: <span class="str">"ok"</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. 인증 API ── -->
+  <div id="sec-auth" class="page-break">
+    <div class="section-title"><span class="num">3</span> 인증 API</div>
+    <div class="info-box">인증 API는 JWT 토큰 없이 호출 가능합니다.</div>
+
+    <!-- 회원가입 -->
+    <div id="api-register" class="card">
+      <div class="card-header">
+        <span class="method post">POST</span>
+        <span class="endpoint">/api/v1/auth/register</span>
+        <span class="auth-badge auth-none">인증 불필요</span>
+      </div>
+      <p class="card-desc">신규 사용자를 등록합니다. 비밀번호는 BCrypt로 암호화되어 저장됩니다.</p>
+      <div class="card-body">
+
+        <div class="label-row"><span class="label-tag">Request Body</span><div class="divider"></div></div>
+        <table>
+          <thead><tr><th>필드</th><th>타입</th><th>조건</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>userId<span class="required">*</span></td><td>String</td><td>최대 50자</td><td>로그인 ID (사번)</td></tr>
+            <tr><td>password<span class="required">*</span></td><td>String</td><td>최소 8자</td><td>비밀번호 (평문 전송, 서버에서 암호화)</td></tr>
+          </tbody>
+        </table>
+
+        <pre style="margin-top:12px">{
+  <span class="key">"userId"</span>:   <span class="str">"EMP001"</span>,
+  <span class="key">"password"</span>: <span class="str">"password123"</span>
+}</pre>
+
+        <div class="label-row"><span class="label-tag">Response</span><div class="divider"></div><span class="status s2xx">201 Created</span></div>
+        <table>
+          <thead><tr><th>필드</th><th>타입</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>userId</td><td>String</td><td>등록된 로그인 ID</td></tr>
+            <tr><td>passExpireDate</td><td>String</td><td>비밀번호 만료일 (YYYYMMDD, 등록일 +90일)</td></tr>
+            <tr><td>createDttm</td><td>String</td><td>등록 일시 (YYYYMMDDHH24MISS)</td></tr>
+          </tbody>
+        </table>
+        <pre style="margin-top:12px">{
+  <span class="key">"userId"</span>:        <span class="str">"EMP001"</span>,
+  <span class="key">"passExpireDate"</span>: <span class="str">"20260817"</span>,
+  <span class="key">"createDttm"</span>:     <span class="str">"20260520105000"</span>
+}</pre>
+
+        <div class="label-row"><span class="label-tag">에러 응답</span><div class="divider"></div></div>
+        <table>
+          <thead><tr><th>HTTP Status</th><th>error</th><th>발생 조건</th></tr></thead>
+          <tbody>
+            <tr><td><span class="status s4xx">409</span>Conflict</td><td>Conflict</td><td>이미 사용 중인 userId</td></tr>
+            <tr><td><span class="status s4xx">400</span>Bad Request</td><td>Bad Request</td><td>입력값 유효성 검증 실패</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 로그인 -->
+    <div id="api-login" class="card">
+      <div class="card-header">
+        <span class="method post">POST</span>
+        <span class="endpoint">/api/v1/auth/login</span>
+        <span class="auth-badge auth-none">인증 불필요</span>
+      </div>
+      <p class="card-desc">아이디/비밀번호로 로그인하고 JWT 액세스 토큰을 발급받습니다.</p>
+      <div class="card-body">
+
+        <div class="label-row"><span class="label-tag">Request Body</span><div class="divider"></div></div>
+        <table>
+          <thead><tr><th>필드</th><th>타입</th><th>조건</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>userId<span class="required">*</span></td><td>String</td><td>필수</td><td>로그인 ID (사번)</td></tr>
+            <tr><td>password<span class="required">*</span></td><td>String</td><td>필수</td><td>비밀번호</td></tr>
+          </tbody>
+        </table>
+        <pre style="margin-top:12px">{
+  <span class="key">"userId"</span>:   <span class="str">"EMP001"</span>,
+  <span class="key">"password"</span>: <span class="str">"password123"</span>
+}</pre>
+
+        <div class="label-row"><span class="label-tag">Response</span><div class="divider"></div><span class="status s2xx">200 OK</span></div>
+        <table>
+          <thead><tr><th>필드</th><th>타입</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>userId</td><td>String</td><td>로그인 ID</td></tr>
+            <tr><td>accessToken</td><td>String</td><td>JWT 액세스 토큰</td></tr>
+            <tr><td>tokenType</td><td>String</td><td>토큰 타입 (고정값: "bearer")</td></tr>
+            <tr><td>expiresIn</td><td>Long</td><td>토큰 유효시간 (초 단위, 기본 1800)</td></tr>
+          </tbody>
+        </table>
+        <pre style="margin-top:12px">{
+  <span class="key">"userId"</span>:      <span class="str">"EMP001"</span>,
+  <span class="key">"accessToken"</span>: <span class="str">"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJFTVAwMDEi..."</span>,
+  <span class="key">"tokenType"</span>:   <span class="str">"bearer"</span>,
+  <span class="key">"expiresIn"</span>:   <span class="num">1800</span>
+}</pre>
+
+        <div class="label-row"><span class="label-tag">에러 응답</span><div class="divider"></div></div>
+        <table>
+          <thead><tr><th>HTTP Status</th><th>발생 조건</th></tr></thead>
+          <tbody>
+            <tr><td><span class="status s4xx">401</span>Unauthorized</td><td>존재하지 않는 ID / 비밀번호 불일치 / 삭제된 계정</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. 문서 분석 API ── -->
+  <div id="sec-document" class="page-break">
+    <div class="section-title"><span class="num">4</span> 문서 분석 API</div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="method post">POST</span>
+        <span class="endpoint">/api/v1/documents/analyze</span>
+        <span class="auth-badge auth-required">인증 필요</span>
+      </div>
+      <p class="card-desc">이미지 또는 PDF 파일을 업로드하면 Azure Document Intelligence로 텍스트를 추출하고, Azure OpenAI가 영양성분 정보를 분석하여 반환합니다.</p>
+      <div class="card-body">
+
+        <div class="label-row"><span class="label-tag">Request</span><div class="divider"></div></div>
+        <div class="info-box">
+          Content-Type: <strong>multipart/form-data</strong>
+        </div>
+        <table>
+          <thead><tr><th>파라미터</th><th>타입</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>image<span class="required">*</span></td><td>File</td><td>분석할 이미지 또는 문서 파일<br/>지원 형식: JPEG, PNG, BMP, TIFF, HEIF, PDF</td></tr>
+          </tbody>
+        </table>
+
+        <div class="label-row"><span class="label-tag">Response</span><div class="divider"></div><span class="status s2xx">200 OK</span></div>
+        <table>
+          <thead><tr><th>필드</th><th>타입</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>requestId</td><td>String</td><td>요청 고유 ID (UUID)</td></tr>
+            <tr><td>status</td><td>String</td><td>처리 상태 (success)</td></tr>
+            <tr><td>extractedText</td><td>String</td><td>Azure DI가 추출한 원문 텍스트</td></tr>
+            <tr><td>aiAnalysis</td><td>Object</td><td>OpenAI 분석 결과</td></tr>
+            <tr><td>aiAnalysis.nutrition</td><td>Object</td><td>영양성분 정보</td></tr>
+            <tr><td>aiAnalysis.nutrition.productName</td><td>String</td><td>제품명</td></tr>
+            <tr><td>aiAnalysis.nutrition.servingUnit</td><td>String</td><td>제공 단위 (기본: "100g")</td></tr>
+            <tr><td>aiAnalysis.nutrition.nutrients</td><td>Array</td><td>영양소 목록 (name / value / unit)</td></tr>
+            <tr><td>aiAnalysis.model</td><td>String</td><td>사용된 OpenAI 모델명</td></tr>
+            <tr><td>aiAnalysis.tokenUsage</td><td>Object</td><td>토큰 사용량 (prompt / completion / total)</td></tr>
+            <tr><td>processingTimeMs</td><td>Long</td><td>처리 소요 시간 (밀리초)</td></tr>
+          </tbody>
+        </table>
+
+        <pre style="margin-top:12px">{
+  <span class="key">"requestId"</span>:     <span class="str">"550e8400-e29b-41d4-a716-446655440000"</span>,
+  <span class="key">"status"</span>:        <span class="str">"success"</span>,
+  <span class="key">"extractedText"</span>: <span class="str">"영양성분 1회 제공량 30g..."</span>,
+  <span class="key">"aiAnalysis"</span>: {
+    <span class="key">"nutrition"</span>: {
+      <span class="key">"productName"</span>: <span class="str">"홍길동 프로틴바"</span>,
+      <span class="key">"servingUnit"</span>: <span class="str">"100g"</span>,
+      <span class="key">"nutrients"</span>: [
+        { <span class="key">"name"</span>: <span class="str">"열량"</span>,     <span class="key">"value"</span>: <span class="num">350</span>, <span class="key">"unit"</span>: <span class="str">"kcal"</span> },
+        { <span class="key">"name"</span>: <span class="str">"단백질"</span>,   <span class="key">"value"</span>: <span class="num">25</span>,  <span class="key">"unit"</span>: <span class="str">"g"</span>    },
+        { <span class="key">"name"</span>: <span class="str">"탄수화물"</span>, <span class="key">"value"</span>: <span class="num">40</span>,  <span class="key">"unit"</span>: <span class="str">"g"</span>    }
+      ]
+    },
+    <span class="key">"model"</span>: <span class="str">"gpt-4o-mini"</span>,
+    <span class="key">"tokenUsage"</span>: {
+      <span class="key">"promptTokens"</span>:     <span class="num">512</span>,
+      <span class="key">"completionTokens"</span>: <span class="num">128</span>,
+      <span class="key">"totalTokens"</span>:      <span class="num">640</span>
+    }
+  },
+  <span class="key">"processingTimeMs"</span>: <span class="num">3241</span>
+}</pre>
+
+        <div class="label-row"><span class="label-tag">에러 응답</span><div class="divider"></div></div>
+        <table>
+          <thead><tr><th>HTTP Status</th><th>발생 조건</th></tr></thead>
+          <tbody>
+            <tr><td><span class="status s4xx">400</span>Bad Request</td><td>image 필드 누락 또는 빈 파일</td></tr>
+            <tr><td><span class="status s5xx">422</span>Unprocessable</td><td>문서 분석 처리 실패</td></tr>
+            <tr><td><span class="status s5xx">502</span>Bad Gateway</td><td>Azure 서비스 오류</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. 에러 응답 형식 ── -->
+  <div id="sec-error" class="page-break">
+    <div class="section-title"><span class="num">5</span> 에러 응답 형식</div>
+
+    <p style="color:#555; margin-bottom:16px;">모든 에러는 아래 형식으로 통일하여 반환됩니다.</p>
+
+    <pre>{
+  <span class="key">"timestamp"</span>: <span class="str">"2026-05-20T10:30:00"</span>,
+  <span class="key">"status"</span>:    <span class="num">401</span>,
+  <span class="key">"error"</span>:     <span class="str">"Unauthorized"</span>,
+  <span class="key">"message"</span>:   <span class="str">"아이디 또는 비밀번호가 올바르지 않습니다."</span>,
+  <span class="key">"path"</span>:      <span class="str">"/api/v1/auth/login"</span>
+}</pre>
+
+    <div class="label-row" style="margin-top:24px;"><span class="label-tag">HTTP 상태코드 목록</span><div class="divider"></div></div>
+    <div class="error-grid">
+      <div class="error-item">
+        <div class="code">400 Bad Request</div>
+        <div class="desc">입력값 유효성 검증 실패</div>
+      </div>
+      <div class="error-item">
+        <div class="code">401 Unauthorized</div>
+        <div class="desc">인증 실패 (잘못된 자격증명 / 토큰 없음)</div>
+      </div>
+      <div class="error-item">
+        <div class="code">403 Forbidden</div>
+        <div class="desc">권한 없음</div>
+      </div>
+      <div class="error-item">
+        <div class="code">404 Not Found</div>
+        <div class="desc">리소스 또는 경로 없음</div>
+      </div>
+      <div class="error-item">
+        <div class="code">409 Conflict</div>
+        <div class="desc">중복 리소스 (이미 존재하는 ID 등)</div>
+      </div>
+      <div class="error-item">
+        <div class="code">422 Unprocessable</div>
+        <div class="desc">문서 분석 처리 실패</div>
+      </div>
+      <div class="error-item">
+        <div class="code">502 Bad Gateway</div>
+        <div class="desc">Azure 외부 서비스 오류</div>
+      </div>
+      <div class="error-item">
+        <div class="code">500 Internal Server Error</div>
+        <div class="desc">서버 내부 예외 (미처리 오류)</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:64px; padding-top:24px; border-top:1px solid #e4e9f2; color:#9ca3af; font-size:11px; text-align:center;">
+    Tablet Backend API 명세서 · v0.0.1-SNAPSHOT · 2026-05-20
+  </div>
+</div>
+
+</body>
+</html>
